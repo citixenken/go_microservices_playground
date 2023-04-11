@@ -1,30 +1,24 @@
 package main
 
 import (
-	"fmt"
-	"io"
+	"example/go_microservices_playground/handlers"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
-	http.HandleFunc("/", func(rw http.ResponseWriter, r*http.Request){
-		log.Println("Hello, gopher!")
-		data, err := io.ReadAll(r.Body)
+	l := log.New(os.Stdout, "product-api", log.LstdFlags)
+	hh := handlers.NewHello(l)
+	gh := handlers.NewGoodbye(l)
 
-		if err != nil {
-			// rw.WriteHeader(http.StatusBadRequest)
-			// rw.Write([]byte("Oops! Something went wrong"))
-			http.Error(rw, "Oops! Something went wrong", http.StatusBadRequest)
-			return
-		}
+	sm := http.NewServeMux()
+	sm.Handle("/", hh)
+	sm.Handle("/goodbye", gh)
 
-		// log.Printf("Data: %s\n", data)
-		fmt.Fprintf(rw, "Hello, %s", data)
-	})
 	// greedy pattern matching
-	http.HandleFunc("/goodbye", func(http.ResponseWriter, *http.Request){
-		log.Println("Goodbye, gopher!")
-	})
-	http.ListenAndServe(":9090", nil)
+	// http.HandleFunc("/goodbye", func(http.ResponseWriter, *http.Request){
+	// 	log.Println("Goodbye, gopher!")
+	// })
+	http.ListenAndServe(":9090", sm)
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 )
 
 func main() {
@@ -16,9 +17,13 @@ func main() {
 	sm.Handle("/", hh)
 	sm.Handle("/goodbye", gh)
 
-	// greedy pattern matching
-	// http.HandleFunc("/goodbye", func(http.ResponseWriter, *http.Request){
-	// 	log.Println("Goodbye, gopher!")
-	// })
-	http.ListenAndServe(":9090", sm)
+	s := &http.Server{
+		Addr: ":9090",
+		Handler: sm,
+		IdleTimeout: 120 * time.Second,
+		ReadTimeout: 1 * time.Second,
+		WriteTimeout: 1 * time.Second,
+	}
+
+	s.ListenAndServe()
 }
